@@ -1,5 +1,5 @@
 -module(exers).
--export([divisors/1, primes/1, join/2, pythagorean/1, merge/2, mergeSort/1, main/0]).
+-export([divisors/1, primes/1, join/2, pythagorean/1, merge/2, mergeSort/1, isPrimeDay/1, isFriday/1, main/0]).
 
 % You can run any functions that are exported with exers:<functionName>(arg) e.g. exers:divisors(24).
 main() ->
@@ -19,7 +19,26 @@ main() ->
     io:format("Merge Result: ~p~n", [MergeResult]),
 
     MergeSortResult = mergeSort([6,2,4,8,9,5,3,1,7,10]),
-    io:format("Merge Sort Result: ~p~n", [MergeSortResult]).
+    io:format("Merge Sort Result: ~p~n", [MergeSortResult]),
+
+    % Should return true
+    IsPrimeDayTrue = isPrimeDay(calendar:date_to_gregorian_days({2018, 5, 13})),
+    io:format("isPrimeDay Result should be true: ~p~n", [IsPrimeDayTrue]),
+
+    % Should return false
+    IsPrimeDayFalse = isPrimeDay(calendar:date_to_gregorian_days({2018, 5, 14})),
+    io:format("isPrimeDay Result should be false: ~p~n", [IsPrimeDayFalse]),
+
+    % Should return true
+    IsFridayTrue = isFriday(calendar:date_to_gregorian_days({2018, 5, 18})),
+    io:format("isFriday Result should be true: ~p~n", [IsFridayTrue]),
+
+    % Should return false
+    IsFridayFalse = isFriday(calendar:date_to_gregorian_days({2018, 5, 17})),
+    io:format("isFriday Result should be false: ~p~n", [IsFridayFalse]).
+
+
+    
 
 % Exercise 2: the divisors, primes, join, and pythagorean functions.
 divisors(N) ->
@@ -55,3 +74,11 @@ mergeSort(N) ->
 
 
 % Also Exercise 3: isPrimeDay and isFriday, using whatever date types are available in your language
+isPrimeDay(D) ->
+    {_,_,Day} = calendar:gregorian_days_to_date(D),
+    divisors(Day) =:= [].
+
+% monday == 1, tuesday==2,....,friday ==5
+isFriday(D) ->
+    Date = calendar:gregorian_days_to_date(D),
+    calendar:day_of_the_week(Date) =:= 5.
