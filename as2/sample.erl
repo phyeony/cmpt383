@@ -3,6 +3,7 @@
 -compile(export_all).
 
 main() ->
+    % This shows the weakness of Erlang in data crunching.
     % Matrix Multiplication Example
     MatrixA1 = [[1, 2, 3], [4, 5, 6]], % 2x3
     MatrixB1 = [[7, 8], [9, 10], [11, 12]], % 3x2
@@ -71,6 +72,7 @@ main() ->
         [16, 17, 18, 19, 20],
         [21, 22, 23, 24, 25]
     ],
+    % This shows the power of Erlang in concurrency using its processes. However, i have failed to make it work..
     case concurrent_matrix_mult(MatrixA4, MatrixB4) of
         {ok, Result4} ->
             io:format("Matrix multiplication result:~n"),
