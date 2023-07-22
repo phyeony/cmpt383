@@ -1,0 +1,23 @@
+1. into_iter()
+    - Receiver Argument: Takes in `self` (move ownership)
+    - Returns: Returns IntoIter
+    - Type of values produced by iterator: values for own type (i.e. T)
+    - When to use: when you want to transfer ownership to another context
+
+2. iter()
+    - Receiver Argument: Takes in `&self` (borrow)
+    - Returns: Returns Iter
+    - Type of values produced by iterator: values of immutable reference for own type (i.e. &T)
+    - When to use: when you want to iterate vector in read only mode
+
+3. iter_mut()
+    - Receiver Argument: Takes in `&mut self` (mutably borrow)
+    - Returns: Returns IterMut
+    - Type of values produced by iterator: values of mutable refercne for own type (i.e. &mut T)
+    - When to use: when you want to itreate vector and change its value
+
+4. drain(..)
+    - Receiver Argument: Takes in `&mut self` (mutably borrow)
+    - Returns: Returns Drain
+    - Type of values produced by iterator: values for own type (i.e. T)
+    - When to use: when you want to safely remove elements in range form vector then obtain the vector of removed elements
