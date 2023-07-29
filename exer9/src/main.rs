@@ -1,6 +1,6 @@
 #[allow(unused_imports)]
 #[allow(dead_code)]
-// pub mod inventory;
+pub mod inventory;
 pub mod primes;
 pub mod sum;
 

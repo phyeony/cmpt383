@@ -8,7 +8,7 @@ fn inventory_test() {
         inventory::InventoryItem::new(2, 199.99, "Gold-Crusted Widget".into()),
         inventory::InventoryItem::new(0, 19.99, "Unobtanium".into()),
     ]);
-    
+
     // convert to some other iterable collections, just to prove it works.
     let items_ll: std::collections::LinkedList<inventory::InventoryItem> =
         items_vec.iter().cloned().collect();

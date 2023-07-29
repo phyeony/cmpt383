@@ -7,7 +7,7 @@ pub fn sum_loop_index(vector: &Vec<i64>) -> i64 {
 }
 
 pub fn sum_loop_iter(vector: &Vec<i64>) -> i64 {
-    let mut sum =0;
+    let mut sum = 0;
     for val in vector {
         sum += val;
     }

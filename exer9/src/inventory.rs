@@ -33,13 +33,20 @@ impl std::hash::Hash for InventoryItem {
 }
 
 pub fn total_value<'a>(items: impl IntoIterator<Item = &'a InventoryItem>) -> f64 {
-    todo!()
+    items.into_iter().map(|x| x.cost * x.count as f64).sum()
 }
 
 pub fn out_of_stock<'a>(items: impl IntoIterator<Item = &'a InventoryItem>) -> Vec<InventoryItem> {
-    todo!()
+    items
+        .into_iter()
+        .filter(|x| x.count == 0)
+        .cloned()
+        .collect()
 }
 
 pub fn explode<'a>(items: impl IntoIterator<Item = &'a InventoryItem>) -> Vec<InventoryItem> {
-    todo!()
+    items
+        .into_iter()
+        .flat_map(|x| (1..=x.count).map(|i| InventoryItem::new(1, x.cost, x.description.clone())))
+        .collect()
 }
