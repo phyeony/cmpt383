@@ -18,15 +18,36 @@ pub struct Block {
 
 impl Block {
     pub fn initial(difficulty: u8) -> Block {
-        todo!(); // create and return a new initial block
+        // create and return a new initial block
+        Block {
+            prev_hash: Hash::default(), //https://doc.rust-lang.org/nightly/core/primitive.u8.html
+            generation: 0,
+            difficulty,
+            data: "".to_string(),
+            proof: None,
+        }
     }
 
     pub fn next(previous: &Block, data: String) -> Block {
-        todo!(); // create and return a block that could follow `previous` in the chain
+        // create and return a block that could follow `previous` in the chain
+        Block {
+            prev_hash: previous.hash(),
+            generation: previous.generation + 1,
+            difficulty: previous.difficulty,
+            data,
+            proof: None,
+        }
     }
 
     pub fn hash_string_for_proof(&self, proof: u64) -> String {
-        todo!(); // return the hash string this block would have if we set the proof to `proof`.
+        // return the hash string this block would have if we set the proof to `proof`.
+        let mut prev_hash_string = String::new();
+        // fmt::Write for String always returns Ok() and never Err.
+        write!(&mut prev_hash_string, "{:02x}", self.prev_hash).unwrap();
+        format!(
+            "{}:{}:{}:{}:{:?}",
+            prev_hash_string, self.generation, self.difficulty, self.data, proof
+        )
     }
 
     pub fn hash_string(&self) -> String {
@@ -36,7 +57,11 @@ impl Block {
     }
 
     pub fn hash_for_proof(&self, proof: u64) -> Hash {
-        todo!(); // return the block's hash as it would be if we set the proof to `proof`.
+        // return the block's hash as it would be if we set the proof to `proof`.
+        let mut hasher = Sha256::new();
+        let hash_string = self.hash_string_for_proof(proof);
+        hasher.update(hash_string.as_bytes());
+        hasher.finalize()
     }
 
     pub fn hash(&self) -> Hash {
@@ -50,7 +75,22 @@ impl Block {
     }
 
     pub fn is_valid_for_proof(&self, proof: u64) -> bool {
-        todo!(); // would this block be valid if we set the proof to `proof`?
+        // would this block be valid if we set the proof to `proof`?
+        let n_bytes = self.difficulty / 8;
+        let n_bits = self.difficulty % 8;
+        let hash = self.hash_for_proof(proof);
+        for i in 0..n_bytes {
+            if hash[hash.len() - 1 - i as usize] != 0u8 {
+                return false;
+            }
+        }
+        // if hash[hash.len() - 1 - n_bytes as usize] & !((1 << n_bits) as u8) != 0 {
+        //     return false;
+        // }  
+        if hash[hash.len() - 1 - n_bytes as usize] & ((1 << n_bits) - 1) != 0 {
+            return false;
+        }      
+        return true;
     }
 
     pub fn is_valid(&self) -> bool {
@@ -73,11 +113,50 @@ impl Block {
 
     pub fn mine_range(self: &Block, workers: usize, start: u64, end: u64, chunks: u64) -> u64 {
         // With `workers` threads, check proof values in the given range, breaking up
-	// into `chunks` tasks in a work queue. Return the first valid proof found.
+        // into `chunks` tasks in a work queue. Return the first valid proof found.
         // HINTS:
         // - Create and use a queue::WorkQueue.
         // - Use sync::Arc to wrap a clone of self for sharing.
-        todo!();
+
+        if chunks == 0 {
+            // if chunks = 0, just return 0.
+            return 0;
+        }
+        let mut q = WorkQueue::<MiningTask>::new(workers);
+
+        if chunks > end - start {
+            // if the chunk is bigger than the range, we need just one task.
+            let task = MiningTask {
+                block: self.clone().into(),
+                start,
+                end,
+            };
+
+            q.enqueue(task).unwrap();
+
+            let result = q.recv();
+            q.shutdown();
+            return result;
+        } else {
+            let proofs_per_chunk = ((end - start + 1) + chunks - 1) / chunks;
+            for i in 0..chunks {
+                let task = MiningTask {
+                    block: self.clone().into(),
+                    start: start + i * proofs_per_chunk,
+                    end: start + (i + 1) * proofs_per_chunk - 1,
+                };
+
+                q.enqueue(task).unwrap();
+            }
+
+            for _ in 0..chunks {
+                let result: u64 = q.recv();
+                // result is the valid proof!
+                q.shutdown();
+                return result;
+            }
+            return 0;
+        }
     }
 
     pub fn mine_for_proof(self: &Block, workers: usize) -> u64 {
@@ -94,17 +173,26 @@ impl Block {
 
 struct MiningTask {
     block: sync::Arc<Block>,
-    todo!(); // more fields as needed
+    start: u64,
+    end: u64,
 }
 
 impl MiningTask {
-    todo!(); // implement MiningTask::new(???) -> MiningTask
+    // implement MiningTask::new(???) -> MiningTask
+    pub fn new(block: sync::Arc<Block>, start: u64, end: u64) -> MiningTask {
+        MiningTask { block, start, end }
+    }
 }
 
 impl Task for MiningTask {
     type Output = u64;
 
     fn run(&self) -> Option<u64> {
-        todo!(); // what does it mean to .run?
+        for proof in self.start..=self.end {
+            if self.block.is_valid_for_proof(proof) {
+                return Some(proof);
+            }
+        }
+        None
     }
 }

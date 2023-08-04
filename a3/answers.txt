@@ -1,0 +1,8 @@
+1. In the Task trait definition, the type Output is specified as Send. What does this do, and why is this necessary?
+It is because we are using multiple threads and Send is the thread safe.
+
+2. The hint for .shutdown suggests using a vector's .drain method. Why can we not iterate with .iter() like usual?
+Vec.drain mutates the original vector when iter() doesn't. We need to remove the threads in the original vector, thus used .drain().
+
+3. Why must we .clone the Block when we put it in the Arc? Why not Arc<&Block>?
+Becuase Block will be modified when a proof is found by a worker thread, we need to share Block as an onwership not reference.
